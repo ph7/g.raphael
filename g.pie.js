@@ -1,3 +1,6 @@
+/*jslint white: false, onevar: false nomen: false browser: true, plusplus: false, undef: true */
+/*global alert, window, RUNA, jQuery, console, $, Raphael */
+
 /*
  * g.Raphael 0.4.1 - Charting library, based on Raphaël
  *
@@ -19,8 +22,8 @@ Raphael.fn.g.piechart = function (cx, cy, r, values, opts) {
         cut = 9,
         defcut = true;
     chart.covers = covers;
-    if (len == 1) {
-        series.push(this.circle(cx, cy, r).attr({fill: opts.colors && opts.colors[0] || this.g.colors[0], stroke: opts.stroke || "#fff", "stroke-width": opts.strokewidth == null ? 1 : opts.strokewidth}));
+    if (len === 1) {
+        series.push(this.circle(cx, cy, r).attr({fill: opts.colors && opts.colors[0] || this.g.colors[0], stroke: opts.stroke || "#fff", "stroke-width": opts.strokewidth === null ? 1 : opts.strokewidth}));
         covers.push(this.circle(cx, cy, r).attr({href: opts.href ? opts.href[0] : null}).attr(this.g.shim));
         total = values[0];
         values[0] = {value: values[0], order: 0, valueOf: function () { return this.value; }};
@@ -43,9 +46,11 @@ Raphael.fn.g.piechart = function (cx, cy, r, values, opts) {
             total += values[i];
             values[i] = {value: values[i], order: i, valueOf: function () { return this.value; }};
         }
-        values.sort(function (a, b) {
-            return b.value - a.value;
-        });
+        if (opts.sort) {
+          values.sort(function (a, b) {
+              return b.value - a.value;
+          });
+        }
         for (i = 0; i < len; i++) {
             if (defcut && values[i] * 360 / total <= 1.5) {
                 cut = i;
@@ -168,9 +173,11 @@ Raphael.fn.g.piechart = function (cx, cy, r, values, opts) {
         element.insertBefore(covers[0]);
     };
     var legend = function (labels, otherslabel, mark, dir) {
+        var top_margin = opts.legend_top_margin || 10;
+        var label_top_margin = opts.label_top_margin || 0;
         var x = cx + r + r / 5,
             y = cy,
-            h = y + 10;
+            h = y + top_margin;
         labels = labels || [];
         dir = (dir && dir.toLowerCase && dir.toLowerCase()) || "east";
         mark = paper.g.markers[mark && mark.toLowerCase()] || "disc";
@@ -185,7 +192,7 @@ Raphael.fn.g.piechart = function (cx, cy, r, values, opts) {
             chart.labels[i].push(paper.g[mark](x + 5, h, 5).attr({fill: clr, stroke: "none"}));
             chart.labels[i].push(txt = paper.text(x + 20, h, labels[j] || values[j]).attr(paper.g.txtattr).attr({fill: opts.legendcolor || "#000", "text-anchor": "start"}));
             covers[i].label = chart.labels[i];
-            h += txt.getBBox().height * 1.2;
+            h += txt.getBBox().height * 1.2 + label_top_margin;
         }
         var bb = chart.labels.getBBox(),
             tr = {
